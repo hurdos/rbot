@@ -43,7 +43,8 @@ def show_operations(token="", account="", instrument=""):
 def sum_operations(token="", account="", instrument=""):
     with Client(token) as client:
         operations = client.operations.get_operations_by_cursor(get_request(account=account, instrument=instrument, limit=100))
-        print(operations)
+        #print(operations.items[0])
+        name = operations.items[0].name
         buy_sum_units = buy_sum_nano = 0
         coupon_sum_units = coupon_sum_nano = 0
         for item in operations.items:
@@ -54,11 +55,11 @@ def sum_operations(token="", account="", instrument=""):
                 coupon_sum_units += item.payment.units + item.commission.units
                 coupon_sum_nano += item.payment.nano + item.commission.nano
                 
-        print(buy_sum_units, buy_sum_nano)
-        print(coupon_sum_units, coupon_sum_nano)
+        #print(buy_sum_units, buy_sum_nano)
+        #print(coupon_sum_units, coupon_sum_nano)
         buy_sum = buy_sum_units + buy_sum_nano/10000000000
         coupon_sum = coupon_sum_units + coupon_sum_nano/10000000000
-        print(buy_sum, coupon_sum, buy_sum + coupon_sum)
+        print(name, buy_sum, coupon_sum, buy_sum + coupon_sum)
 
 def main(args):
     load_dotenv()
