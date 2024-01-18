@@ -59,7 +59,8 @@ def sum_operations(token="", account="", instrument=""):
         #print(coupon_sum_units, coupon_sum_nano)
         buy_sum = buy_sum_units + buy_sum_nano/10000000000
         coupon_sum = coupon_sum_units + coupon_sum_nano/10000000000
-        print(name, buy_sum, coupon_sum, buy_sum + coupon_sum)
+        print("Наименование | Сумма покупки | Сумма выплат по купонам | Сумма покупки за вычетом купонов")
+        print(f"{name} | {buy_sum} | {coupon_sum} | {buy_sum + coupon_sum}")
 
 def main(args):
     load_dotenv()
