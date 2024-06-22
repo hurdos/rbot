@@ -4,8 +4,14 @@
 
 import os
 import sys
+import argparse
 from dotenv import load_dotenv
 from tinkoff.invest import Client
+
+def get_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-a", "--account", help="Account ID", default="2121614941") # default=ИИС
+    return parser.parse_args()
 
 def show_money (money):
     value = money.units + money.nano/10000000000
@@ -19,7 +25,8 @@ def show_position(pos):
 def main(args):
     load_dotenv()
     token = os.getenv("TOKEN", "")
-    account_id = os.getenv("ACCOUNT_ID", "")
+    #account_id = os.getenv("ACCOUNT_ID", "")
+    account_id = args.account
     
     with Client(token) as client:
         #positions = client.operations.get_positions(account_id=account_id)
@@ -34,4 +41,5 @@ def main(args):
     return 0
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv))
+    args = get_args()
+    sys.exit(main(args))
