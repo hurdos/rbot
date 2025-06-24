@@ -37,6 +37,7 @@ def main(args):
         print(f"Общая сумма по облигациям: {show_money(portfolio.total_amount_bonds)}")
         print("-"*65)
         for pos in portfolio.positions:
+            # print(pos)
             show_position(pos)
     return 0
 
