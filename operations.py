@@ -5,6 +5,7 @@
 import os
 import sys
 import argparse
+from helper import Money
 from dotenv import load_dotenv
 from tinkoff.invest import Client, GetOperationsByCursorRequest, OperationType
 
@@ -45,22 +46,26 @@ def sum_operations(token="", account="", instrument=""):
         operations = client.operations.get_operations_by_cursor(get_request(account=account, instrument=instrument, limit=100))
         #print(operations.items[0])
         name = operations.items[0].name
-        buy_sum_units = buy_sum_nano = 0
-        coupon_sum_units = coupon_sum_nano = 0
+        buy_sum = Money()
+        coupon_sum = Money()
+        divs = Money()
         for item in operations.items:
             if item.type == OperationType.OPERATION_TYPE_BUY:
-                buy_sum_units += item.payment.units + item.commission.units
-                buy_sum_nano += item.payment.nano + item.commission.nano
+                buy_sum.units += item.payment.units + item.commission.units
+                buy_sum.nano += item.payment.nano + item.commission.nano
             elif item.type == OperationType.OPERATION_TYPE_COUPON:
-                coupon_sum_units += item.payment.units + item.commission.units
-                coupon_sum_nano += item.payment.nano + item.commission.nano
+                coupon_sum.units += item.payment.units + item.commission.units
+                coupon_sum.nano += item.payment.nano + item.commission.nano
+            elif item.type == OperationType.OPERATION_TYPE_DIVIDEND:
+                divs.units += item.payment.units + item.commission.units
+                divs.nano += item.payment.nano + item.commission.nano
                 
-        #print(buy_sum_units, buy_sum_nano)
-        #print(coupon_sum_units, coupon_sum_nano)
-        buy_sum = buy_sum_units + buy_sum_nano/10000000000
-        coupon_sum = coupon_sum_units + coupon_sum_nano/10000000000
-        print("Наименование | Сумма покупки | Сумма выплат по купонам | Сумма покупки за вычетом купонов")
-        print(f"{name} | {buy_sum} | {coupon_sum} | {buy_sum + coupon_sum}")
+        cost = abs(buy_sum.get_amount())
+        coupon_payout = abs(coupon_sum.get_amount())
+        divs = divs.get_amount()
+        cp_precent = coupon_payout / cost * 100
+        d_precent = divs / cost * 100
+        print(f"{name} - COST:{cost:11,} | CP:{coupon_payout:5,}|{cp_precent:1.1f}% | DIVS:{divs:10,}|{d_precent:1.1f}%")
 
 def main(args):
     load_dotenv()
