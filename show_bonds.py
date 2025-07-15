@@ -19,6 +19,9 @@ def get_args():
     return parser.parse_args()
 
 def delete_bond(figi):
+    adp = SqlAdapter()
+    adp.delete_bond(figi)
+    adp.close()
     return 0
 
 def get_bonds(account_id):   
@@ -113,10 +116,7 @@ def main(args):
         return get_bonds(args.account)
     
     if args.delete:
-        adp = SqlAdapter()
-        adp.delete_bond(args.delete)
-        adp.close()
-        return 0
+        return delete_bond(args.delete)
 
     show_profit()
 
