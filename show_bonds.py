@@ -24,6 +24,15 @@ def delete_bond(figi):
     adp.close()
     return 0
 
+def calc_position_cost(pos):
+    """
+    Fallback стоимость позиции, если операции не вернули оплату
+    (например, первичное размещение без операций BUY).
+    """
+    qty = pos.quantity.units + pos.quantity.nano / 1_000_000_000
+    price = pos.average_position_price.units + pos.average_position_price.nano / 1_000_000_000
+    return qty * price
+
 def get_bonds(account_id):   
     adp = SqlAdapter()
     token = os.getenv("TOKEN", "")
@@ -33,6 +42,9 @@ def get_bonds(account_id):
             if pos.instrument_type == 'bond':
                 bond = client.instruments.bond_by(id_type=1, id=pos.figi).instrument
                 (cost, coupon_payout) = get_payments(token=token, account=account_id, figi=pos.figi)
+                if abs(cost) < 1e-9:
+                    cost = calc_position_cost(pos)
+                    print(f"Fallback cost from portfolio for [{pos.figi}] -> {cost}")
                 if (adp.is_bond_exists(figi=pos.figi)):
                     adp.update_bond(figi=pos.figi, values=(pos.quantity.units, abs(cost), coupon_payout, pos.average_position_price.units, pos.current_price.units))
                     print(f"Updated: {bond.name} [{pos.figi}]")
